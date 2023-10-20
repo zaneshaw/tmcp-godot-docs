@@ -8,7 +8,7 @@ import axios from "axios";
 
 const cacherVersion = 1; // Increments upon restructure of JSON output
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
-const outputPath = path.join(__dirname, "../docs-index.json");
+const outputPath = path.join(__dirname, "../docs-cache.json");
 
 const baseSrcURL = "https://raw.githubusercontent.com/godotengine/godot-docs/4.1/";
 const baseDocsURL = "https://docs.godotengine.org/en/4.1/";
@@ -56,7 +56,7 @@ export async function cacheDocs() {
 	}
 	indexingProgress.stop();
 
-	let obj = {
+	let cache = {
 		time: Date.now(),
 		version: cacherVersion,
 		index: {}
@@ -64,15 +64,15 @@ export async function cacheDocs() {
 	Object.keys(tempIndex).forEach((key) => {
 		const [route1, route2] = key.split("/");
 		if (route2) {
-			if (!Object.keys(obj.index).includes(route1)) obj.index[route1] = {};
-			obj.index[route1][route2] = tempIndex[key];
+			if (!Object.keys(cache.index).includes(route1)) cache.index[route1] = {};
+			cache.index[route1][route2] = tempIndex[key];
 		} else {
-			obj.index[route1] = tempIndex[key];
+			cache.index[route1] = tempIndex[key];
 		}
 	});
 
 	savingProgress.start(1, 0);
-	await fs.writeFile(outputPath, JSON.stringify(obj, null, 4), (err) => {
+	await fs.writeFile(outputPath, JSON.stringify(cache, null, 4), (err) => {
 		if (err) throw err;
 	});
 	savingProgress.update(1);
