@@ -11,7 +11,7 @@ tmcp.addItem({
 	},
 });
 
-const version = 1;
+const version = 2;
 const godotVersion = tmcp.addSetting({
 	type: "select",
 	text: "Godot version",
@@ -38,11 +38,19 @@ if (version > docs.version) {
 Object.entries(docs.index).forEach(([key, value]) => {
 	if (key === "classes") {
 		Object.entries(docs.index["classes"]).forEach(([key, value]) => {
+			let content = "";
+			content += `# ${value.title}\n\n`
+			content += `*${value.blurb}*\n\n`
+			content += `${value.description}`
+
 			tmcp.addItem({
-				text: key.split("_")[1],
+				text: value.title,
 				action: () => require("electron").shell.openExternal(value),
+				display: {
+					type: "markdown",
+					content,
+				},
 			});
 		});
 	}
 });
-
