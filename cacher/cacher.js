@@ -6,7 +6,7 @@ import url from "node:url";
 import cliProgress from "cli-progress";
 import axios from "axios";
 
-const cacherVersion = 1; // Increments upon restructure of JSON output
+const version = 1; // Increments upon restructure of JSON output
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const outputPath = path.join(__dirname, "../docs-cache.json");
 
@@ -58,7 +58,7 @@ export async function cacheDocs() {
 
 	let cache = {
 		time: Date.now(),
-		version: cacherVersion,
+		version,
 		index: {}
 	};
 	Object.keys(tempIndex).forEach((key) => {

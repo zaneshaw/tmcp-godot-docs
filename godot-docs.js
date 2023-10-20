@@ -11,6 +11,7 @@ tmcp.addItem({
 	},
 });
 
+const version = 1;
 const godotVersion = tmcp.addSetting({
 	type: "select",
 	text: "Godot version",
@@ -19,16 +20,24 @@ const godotVersion = tmcp.addSetting({
 	options: ["4.1"],
 });
 
-let docsCache = { time: -1, version: -1, index: {} };
+let docs = { time: -1, version: -1, index: {} };
 
 const jsonPath = path.join(__dirname, "docs-cache.json");
 
 const data = await fs.readFile(jsonPath, { encoding: "utf-8" }).catch((err) => null);
-docsCache = JSON.parse(data);
+docs = JSON.parse(data);
 
-Object.entries(docsCache.index).forEach(([key, value]) => {
+if (version > docs.version) {
+	console.error("Godot Docs: Docs cache is out of date!");
+	return;
+} else if (version < docs.version) {
+	console.error("Godot Docs: Plugin is out of date!");
+	return;
+}
+
+Object.entries(docs.index).forEach(([key, value]) => {
 	if (key === "classes") {
-		Object.entries(docsCache.index["classes"]).forEach(([key, value]) => {
+		Object.entries(docs.index["classes"]).forEach(([key, value]) => {
 			tmcp.addItem({
 				text: key.split("_")[1],
 				action: () => require("electron").shell.openExternal(value),
@@ -36,3 +45,4 @@ Object.entries(docsCache.index).forEach(([key, value]) => {
 		});
 	}
 });
+
