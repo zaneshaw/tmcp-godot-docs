@@ -55,25 +55,22 @@ export async function cacheDocs() {
 			for (let j = 0; j < parsed.length; j++) {
 				const subRoute = parsed[j];
 				const url = `${baseDocsURL}${route}/${subRoute}.html`;
-				if (true) {
-					const html = (await axios.get(url)).data;
-
-					const data = {
-						url,
-						title: "",
-						blurb: "",
-						description: "",
-					};
-					const $ = cheerio.load(html);
-					const articleBody = $(".rst-content").children(".document").children().children("section");
-					data.title = articleBody.children("h1").first().text().slice(0, -1);
-					data.blurb = articleBody.children("p").text();
-					articleBody.children("#description").children().first().remove();
-					data.description = articleBody.children("#description").html();
-					tempIndex[route][subRoute] = data;
-				} else {
-					tempIndex[route][subRoute] = url;
-				}
+				const html = (await axios.get(url)).data;
+				const data = {
+					url,
+					title: "",
+					blurb: "",
+					description: "", // TODO: Replace with 'sections' object (version bump!)
+				};
+				const $ = cheerio.load(html);
+				const articleBody = $(".rst-content").children(".document").children().children("section");
+				data.title = articleBody.children("h1").first().text().slice(0, -1);
+				articleBody.children("p").each((i, elem) => {
+					data.blurb += `<p>${$(elem).html()}</p>`;
+				});;
+				articleBody.children("#description").children().first().remove();
+				data.description = articleBody.children("#description").html();
+				tempIndex[route][subRoute] = data;
 				generatingProgress.increment();
 			}
 		} else {

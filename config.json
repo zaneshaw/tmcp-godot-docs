@@ -2,5 +2,6 @@
 	"name": "Godot Docs",
 	"description": "Get instant keyword search results from the Godot documentation.",
 	"icon": "./godot.png",
-	"scripts": ["godot-docs.js"]
+	"scripts": ["godot-docs.js"],
+	"styles": ["godot-docs.css"]
 }

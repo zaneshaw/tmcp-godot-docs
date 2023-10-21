@@ -39,13 +39,14 @@ Object.entries(docs.index).forEach(([key, value]) => {
 	if (key === "classes") {
 		Object.entries(docs.index["classes"]).forEach(([key, value]) => {
 			let content = "";
-			content += `# ${value.title}\n\n`
-			content += `*${value.blurb}*\n\n`
+			content += `<h1>${value.title}</h1>`
+			content += `${value.blurb}`
+			content += `<h2>Description</h2>`
 			content += `${value.description}`
 
 			tmcp.addItem({
 				text: value.title,
-				action: () => require("electron").shell.openExternal(value),
+				action: () => require("electron").shell.openExternal(value.url),
 				display: {
 					type: "markdown",
 					content,
