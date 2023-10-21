@@ -15,13 +15,17 @@ const baseSrcURL = "https://raw.githubusercontent.com/godotengine/godot-docs/4.1
 const baseDocsURL = "https://docs.godotengine.org/en/4.1/";
 const indexURL = baseSrcURL + "index.rst";
 
-const progressFormat = "{bar} {percentage}%, {value}/{total}, {eta_formatted}";
-const multibar = new cliProgress.MultiBar(
-	{
-		clearOnComplete: false,
-		hideCursor: true,
-		format: "{filename}\t" + progressFormat,
-	},
+const progressFormat = "{bar} {percentage}% | {value}/{total} | {eta_formatted}";
+const fetchingProgress = new cliProgress.Bar(
+	{ format: "Fetching\t" + progressFormat },
+	cliProgress.Presets.shades_classic
+);
+const indexingProgress = new cliProgress.Bar(
+	{ format: "Indexing\t" + progressFormat },
+	cliProgress.Presets.shades_classic
+);
+const generatingProgress = new cliProgress.Bar(
+	{ format: "Generating\t" + progressFormat },
 	cliProgress.Presets.shades_classic
 );
 const savingProgress = new cliProgress.Bar(
@@ -30,71 +34,109 @@ const savingProgress = new cliProgress.Bar(
 );
 
 export async function cacheDocs() {
-	const fetchingProgress = multibar.create(1, 0, { filename: "Fetching" });
-	const indexingProgress = multibar.create(Infinity, 0, { filename: "Indexing" });
-	const generatingProgress = multibar.create(1, 0, { filename: "Generating" });
+	fetchingProgress.start(1, 0);
 
-	const res1 = await axios.get(indexURL);
-	if (res1.status !== 200) return console.error("Error fetching!");
+	const res = await axios.get(indexURL);
+	if (res.status !== 200) return console.error("Error fetching!");
 	fetchingProgress.update(1);
+
 	fetchingProgress.stop();
 
-	let tempIndex = {};
-	let totalGens = 0;
-	let indexTopLevel = parseRST(res1.data);
-	indexingProgress.setTotal(indexTopLevel.length - 1);
+	indexDocs(res.data);
+}
+
+async function indexDocs(rawRST) {
+	let index = {};
+	let indexTopLevel = parseRST(rawRST);
+	indexingProgress.start(indexTopLevel.length, 0);
+
 	for (let i = 0; i < indexTopLevel.length; i++) {
 		let route = indexTopLevel[i];
 		if (route.endsWith("/index")) {
 			route = route.slice(0, -6);
-			tempIndex[route] = {};
-			const res2 = await axios.get(`${baseSrcURL}${route}/index.rst`);
-			const parsed = parseRST(res2.data);
-			totalGens += parsed.length;
-			generatingProgress.setTotal(totalGens);
-			for (let j = 0; j < parsed.length; j++) {
-				const subRoute = parsed[j];
-				const url = `${baseDocsURL}${route}/${subRoute}.html`;
-				const html = (await axios.get(url)).data;
-				const data = {
-					url,
-					title: "",
-					blurb: "",
-					description: "", // TODO: Replace with 'sections' object (version bump!)
-				};
-				const $ = cheerio.load(html);
-				const articleBody = $(".rst-content").children(".document").children().children("section");
-				data.title = articleBody.children("h1").first().text().slice(0, -1);
-				articleBody.children("p").each((i, elem) => {
-					data.blurb += `<p>${$(elem).html()}</p>`;
-				});;
-				articleBody.children("#description").children().first().remove();
-				data.description = articleBody.children("#description").html();
-				tempIndex[route][subRoute] = data;
-				generatingProgress.increment();
-			}
+			const res = await axios.get(`${baseSrcURL}${route}/index.rst`);
+			const parsed = parseRST(res.data);
+			index[route] = parsed;
 		} else {
-			tempIndex[route] = `${baseDocsURL}${route}.html`;
+			index[route] = undefined;
 		}
 		indexingProgress.increment();
 	}
-	multibar.stop();
+
+	indexingProgress.stop();
+	generateDocs(index);
+}
+
+async function generateDocs(_index) {
+	const index = {};
+	const raw = Object.entries(_index);
+	let routes = raw.map((x) => x[0]);
+	let subRoutes = raw.map((x) => x[1]);
+
+	const total = subRoutes.reduce((acc, val) => acc + (val?.length || 1), 0);
+	generatingProgress.start(total, 0);
+
+	async function generate(url) {
+		const html = (await axios.get(url)).data;
+		const data = {
+			url,
+			title: "",
+			blurb: "",
+			description: "", // TODO: Replace with 'sections' object (version bump!)
+		};
+		const $ = cheerio.load(html);
+		const articleBody = $(".rst-content").children(".document").children().children("section");
+		data.title = articleBody.children("h1").first().text().slice(0, -1);
+		articleBody.children("p").each((i, elem) => {
+			data.blurb += `<p>${$(elem).html()}</p>`;
+		});
+		articleBody.children("#description").children().first().remove();
+		data.description = articleBody.children("#description").html();
+
+		return data;
+	}
+
+	for (let i = 0; i < routes.length; i++) {
+		const route = routes[i];
+		index[route] = {};
+		if (subRoutes[i] === undefined) {
+			const url = `${baseDocsURL}${route}.html`;
+			const data = await generate(url);
+
+			index[route] = data;
+			generatingProgress.increment();
+		} else {
+			for (let j = 0; j < subRoutes[i].length; j++) {
+				const subRoute = subRoutes[i][j];
+				const url = `${baseDocsURL}${route}/${subRoute}.html`;
+				const data = await generate(url);
+
+				index[route][subRoute] = data;
+				generatingProgress.increment();
+			}
+		}
+	}
 
 	let cache = {
 		time: Date.now(),
 		version,
 		index: {},
 	};
-	Object.keys(tempIndex).forEach((key) => {
+	Object.keys(index).forEach((key) => {
 		const [route1, route2] = key.split("/");
 		if (route2) {
 			if (!Object.keys(cache.index).includes(route1)) cache.index[route1] = {};
-			cache.index[route1][route2] = tempIndex[key];
+			cache.index[route1][route2] = index[key];
 		} else {
-			cache.index[route1] = tempIndex[key];
+			cache.index[route1] = index[key];
 		}
 	});
 
+	generatingProgress.stop();
+	saveDocs(cache);
+}
+
+async function saveDocs(cache) {
 	savingProgress.start(1, 0);
 	await fs.writeFile(outputPath, JSON.stringify(cache, null, 4), (err) => {
 		if (err) throw err;

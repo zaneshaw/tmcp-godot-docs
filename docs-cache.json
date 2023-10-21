@@ -1,15 +1,50 @@
 {
-    "time": 1697850181578,
+    "time": 1697860072685,
     "version": 2,
     "index": {
         "about": {
-            "introduction": "https://docs.godotengine.org/en/4.1/about/introduction.html",
-            "faq": "https://docs.godotengine.org/en/4.1/about/faq.html",
-            "troubleshooting": "https://docs.godotengine.org/en/4.1/about/troubleshooting.html",
-            "list_of_features": "https://docs.godotengine.org/en/4.1/about/list_of_features.html",
-            "docs_changelog": "https://docs.godotengine.org/en/4.1/about/docs_changelog.html",
-            "release_policy": "https://docs.godotengine.org/en/4.1/about/release_policy.html",
-            "complying_with_licenses": "https://docs.godotengine.org/en/4.1/about/complying_with_licenses.html"
+            "introduction": {
+                "url": "https://docs.godotengine.org/en/4.1/about/introduction.html",
+                "title": "Introduction",
+                "blurb": "<p>Welcome to the official documentation of <strong>Godot Engine</strong>, the free and open source\ncommunity-driven 2D and 3D game engine! Behind this mouthful, you will find a\npowerful yet user-friendly tool that you can use to develop any kind of game,\nfor any platform and with no usage restriction whatsoever.</p><p>This page gives a broad overview of the engine and of this documentation,\nso that you know where to start if you are a beginner or\nwhere to look if you need information on a specific feature.</p>",
+                "description": null
+            },
+            "faq": {
+                "url": "https://docs.godotengine.org/en/4.1/about/faq.html",
+                "title": "Frequently asked questions",
+                "blurb": "",
+                "description": null
+            },
+            "troubleshooting": {
+                "url": "https://docs.godotengine.org/en/4.1/about/troubleshooting.html",
+                "title": "Troubleshooting",
+                "blurb": "<p>This page lists common issues encountered when using Godot and possible solutions.</p>",
+                "description": null
+            },
+            "list_of_features": {
+                "url": "https://docs.godotengine.org/en/4.1/about/list_of_features.html",
+                "title": "List of features",
+                "blurb": "<p>This page aims to list <strong>all</strong> features currently supported by Godot.</p>",
+                "description": null
+            },
+            "docs_changelog": {
+                "url": "https://docs.godotengine.org/en/4.1/about/docs_changelog.html",
+                "title": "Documentation changelog",
+                "blurb": "<p>The documentation is continually being improved. New releases\ninclude new pages, fixes and updates to existing pages, and many updates\nto the <a class=\"reference internal\" href=\"../classes/index.html#doc-class-reference\"><span class=\"std std-ref\">class reference</span></a>. Below is a list of new pages\nadded since version 3.0.</p>",
+                "description": null
+            },
+            "release_policy": {
+                "url": "https://docs.godotengine.org/en/4.1/about/release_policy.html",
+                "title": "Godot release policy",
+                "blurb": "<p>Godot's release policy is in constant evolution. The description below\nprovides a general idea of what to expect, but what will actually\nhappen depends on the choices of core contributors and the needs of the\ncommunity at a given time.</p>",
+                "description": null
+            },
+            "complying_with_licenses": {
+                "url": "https://docs.godotengine.org/en/4.1/about/complying_with_licenses.html",
+                "title": "Complying with licenses",
+                "blurb": "",
+                "description": null
+            }
         },
         "getting_started": {
             "introduction": {
@@ -1554,7 +1589,12 @@
             }
         },
         "contributing": {
-            "ways_to_contribute": "https://docs.godotengine.org/en/4.1/contributing/ways_to_contribute.html",
+            "ways_to_contribute": {
+                "url": "https://docs.godotengine.org/en/4.1/contributing/ways_to_contribute.html",
+                "title": "Ways to contribute",
+                "blurb": "<p>Godot Engine is a non-profit, community-driven free and open source project.\nAlmost all (but our lead dev Juan, more on that below) developers are working\n<em>pro bono</em> on their free time, out of personal interest and for the love of\ncreating a libre engine of exceptional quality.</p><p>This means that to thrive, Godot needs as many users as possible to get\ninvolved by contributing to the engine. There are many ways to contribute to\nsuch a big project, making it possible for everybody to bring something\npositive to the engine, regardless of their skill set:</p>",
+                "description": null
+            },
             "workflow": {
                 "bisecting_regressions": {
                     "url": "https://docs.godotengine.org/en/4.1/contributing/workflow/bisecting_regressions.html",
@@ -1715,8 +1755,18 @@
                     "description": null
                 }
             },
-            "channels": "https://docs.godotengine.org/en/4.1/community/channels.html",
-            "tutorials": "https://docs.godotengine.org/en/4.1/community/tutorials.html"
+            "channels": {
+                "url": "https://docs.godotengine.org/en/4.1/community/channels.html",
+                "title": "Community channels",
+                "blurb": "<p>So, where is the Godot community and where can you ask questions and get help?</p><p>Note that some of these channels are run and moderated by members of the Godot community or third parties.</p><p>A brief overview over these and other channels is also available on the <a class=\"reference external\" href=\"https://godotengine.org/community\">Godot website</a>.</p>",
+                "description": null
+            },
+            "tutorials": {
+                "url": "https://docs.godotengine.org/en/4.1/community/tutorials.html",
+                "title": "Tutorials and resources",
+                "blurb": "<p>This is a list of third-party tutorials and resources created by the Godot community. For resources, remember that there is the official <a class=\"reference external\" href=\"https://godotengine.org/asset-library/asset\">Godot Asset Library</a> full of official and community resources too! Also, have a look at this <a class=\"reference external\" href=\"https://www.reddit.com/r/godot/comments/an0iq5/godot_tutorials_list_of_video_and_written/\">huge list over at Reddit</a>.</p><p>Think there is something missing here? Feel free to submit a <a class=\"reference external\" href=\"https://github.com/godotengine/godot-docs/blob/master/community/tutorials.rst\">Pull Request</a> as always.</p>",
+                "description": null
+            }
         },
         "classes": {
             "class_@gdscript": {
