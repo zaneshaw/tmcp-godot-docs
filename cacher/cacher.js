@@ -7,7 +7,7 @@ import cliProgress from "cli-progress";
 import axios from "axios";
 import * as cheerio from "cheerio";
 
-const version = 2; // Increments upon restructure of JSON output
+const version = 3; // Increments upon restructure of JSON output
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const outputPath = path.join(__dirname, "../docs-cache.json");
 
@@ -77,21 +77,26 @@ async function generateDocs(_index) {
 	generatingProgress.start(total, 0);
 
 	async function generate(url) {
+		// TODO: Generate curated markdown instead of copy-pasting the HTML
 		const html = (await axios.get(url)).data;
 		const data = {
 			url,
 			title: "",
 			blurb: "",
-			description: "", // TODO: Replace with 'sections' object (version bump!)
+			sections: [],
 		};
 		const $ = cheerio.load(html);
 		const articleBody = $(".rst-content").children(".document").children().children("section");
 		data.title = articleBody.children("h1").first().text().slice(0, -1);
-		articleBody.children("p").each((i, elem) => {
-			data.blurb += `<p>${$(elem).html()}</p>`;
+		articleBody.children("p").each((i, el) => {
+			data.blurb += `<p>${$(el).html()}</p>`;
 		});
-		articleBody.children("#description").children().first().remove();
-		data.description = articleBody.children("#description").html();
+		articleBody.children("section").each((i, el) => {
+			data.sections.push({
+				header: $(el).find("h2").text().slice(0, -1),
+				content: $(el).html().split("\n").slice(2).join(""),
+			});
+		});
 
 		return data;
 	}

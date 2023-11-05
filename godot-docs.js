@@ -11,7 +11,7 @@ tmcp.addItem({
 	},
 });
 
-const version = 2;
+const version = 3;
 const godotVersion = tmcp.addSetting({
 	type: "select",
 	text: "Godot version",
@@ -41,8 +41,10 @@ Object.entries(docs.index).forEach(([key, value]) => {
 			let content = "";
 			content += `<h1>${value.title}</h1>`
 			content += `${value.blurb}`
-			content += `<h2>Description</h2>`
-			content += `${value.description}`
+			value.sections.forEach(section => {
+				content += `<h2>${section.header}</h2>`
+				content += `${section.content}`
+			});
 
 			tmcp.addItem({
 				text: value.title,
